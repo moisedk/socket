@@ -68,6 +68,9 @@ def parse_cli_args():
 
     
 if __name__ == '__main__':
-
+    # Parse command line arguments
+    parse_cli_args()
+    # Create pool of workers and perform requests
+    process_requests()
 
 # vim: set sts=4 sw=4 ts=8 expandtab ft=python:
