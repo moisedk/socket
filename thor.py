@@ -27,7 +27,28 @@ def usage(status=0):
     '''.format(os.path.basename(sys.argv[0])))
     sys.exit(status)
 
-
+def do_request(pid):
+    """ Performs REQUESTS requests per every process that calls it;
+        Returns a list containing the time each process took 
+    """
+    total_time = 0
+    global VERBOSE
+    for req in range(REQUESTS):
+        begin_t = time.time()
+        try:
+            res = requests.get(url=URL)
+        except:
+            print('Something went wrong')
+        # Verbose is only used to print the body of the request the first time it is made
+        if VERBOSE:
+            print(res.text)
+            VERBOSE = not VERBOSE
+        end_t = time.time()
+        elapsed_t = end_t - begin_t
+        print(f'Process: {pid}, Request: {req}, Elapsed: {elapsed_t}')
+        total_time += elapsed_t
+    print(f'Process: {pid}, AVERAGE: {total_time / REQUESTS}')
+    return total_time
 
 # Main execution
 def parse_cli_args():
