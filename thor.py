@@ -64,7 +64,10 @@ def parse_cli_args():
         except ValueError as e:
             print('An error occured: {e}')
             sys.exit(FAILURE)            
-
+def process_requests():
+    with Pool(processes=PROCESSES) as workers:
+        results = workers.map(do_request, list(range(PROCESSES)))
+    print(F'TOTAL AVERAGE ELAPSED TIME: {sum(results) / PROCESSES}')
 
     
 if __name__ == '__main__':
