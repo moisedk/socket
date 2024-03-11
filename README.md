@@ -1,13 +1,20 @@
-Project 02 - README
+spidey
 ===================
 
-Basic socket programmming project
+A basic socket programmming experiment
 ---------------------------------
-See [description](https://www3.nd.edu/~pbui/teaching/cse.20289.sp17/project02.html)
-(Original implementaion based on bare template. No tutorial :)
+spidey is a simple server with the following capabilities (in building)
 
-Summary
--------
+- Executing in either single connection mode or forking mode
+
+- Displaying directory listings
+
+- Serving static files
+
+- Running CGI scripts
+
+- Showing error messages
+
 
 Latency
 -------
@@ -21,5 +28,5 @@ Analysis
 Conclusion
 ----------
 
-Contributions
--------------
+Credits
+-------
