@@ -24,7 +24,7 @@ socket_listen(const char *port)
         .ai_flags = AI_PASSIVE // Socket is used for accepting connection on all interfaces.
     };
     struct addrinfo *results;
-    int    socket_fd = -1;
+    int    socketfd = -1;
 
     /* Lookup server address information */
     int status;
@@ -33,30 +33,30 @@ socket_listen(const char *port)
         return status;
     }
     /* For each server entry, allocate socket and try to connect */
-    for (struct addrinfo *p = results; p != NULL && socket_fd < 0; p = p->ai_next) {
+    for (struct addrinfo *p = results; p != NULL && socketfd < 0; p = p->ai_next) {
 	    /* Allocate socket */
-        if ((socket_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) {
+        if ((socketfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) {
             fprintf("Failed to make socket: %s\n", strerror(errno));
             continue;
         }
         /* Bind socket */
-        if (bind(socket_fd, p->ai_addr, p->ai_addrlen) < 0) {
+        if (bind(socketfd, p->ai_addr, p->ai_addrlen) < 0) {
             fprintf("Failed to bind socket: %s\n", strerror(errno));
-            close(socket_fd);
-            socket_fd = -1;
+            close(socketfd);
+            socketfd = -1;
             continue;
         }
     	/* Listen to socket */
-        if (listen(socket_fd, SOMAXCONN) < 0) {
+        if (listen(socketfd, SOMAXCONN) < 0) {
             fprintf("Failed to listen: %s\n", strerror(errno));
-            close(socket_fd);
-            socket_fd = -1;
+            close(socketfd);
+            socketfd = -1;
             continue;
         }
     }
 
     freeaddrinfo(results);
-    return socket_fd;
+    return socketfd;
 }
 
 /* vim: set expandtab sts=4 sw=4 ts=8 ft=c: */
