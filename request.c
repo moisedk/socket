@@ -92,14 +92,14 @@ free_request(struct request *req)
     free(req->path);
     free(req->uri);
     /* Free headers */
-    struct header *head = req->headers;
-    while (head != NULL)
+    header = req->headers;
+    while (header != NULL)
     {
-        struct header *nextHeader = head->next;
-        free(head->name);
-        free(head->value);
-        free(head);
-        head = nextHeader;
+        struct header *nextHeader = header->next;
+        free(header->name);
+        free(header->value);
+        free(header);
+        header = nextHeader;
     }
     /* Free request */
     free(req);
