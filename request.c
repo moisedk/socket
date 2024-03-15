@@ -46,7 +46,7 @@ accept_request(int sockfd)
         goto fail;
     }
     /* Lookup client information */
-    if (getnameinfo(&raddr, sizeof(raddr), req->host, sizeof(req->host), req->port, sizeof(req->port), 0) != 0)
+    if (getnameinfo(&raddr, rlen, req->host, sizeof(req->host), req->port, sizeof(req->port), 0) != 0)
     {
         fprintf(stderr, "Host name and service cannot be retrieved");
         goto fail;
@@ -76,21 +76,33 @@ fail:
  *  4. Frees request struct.
  **/
 void
-free_request(struct request *r)
+free_request(struct request *req)
 {
     struct header *header;
 
-    if (r == NULL) {
+    if (req == NULL) {
     	return;
     }
 
     /* Close socket or fd */
-
+    close(req->fd);
     /* Free allocated strings */
-
+    free(req->method);
+    free(req->query);
+    free(req->path);
+    free(req->uri);
     /* Free headers */
-
+    struct header *head = req->headers;
+    while (head != NULL)
+    {
+        struct header *nextHeader = head->next;
+        free(head->name);
+        free(head->value);
+        free(head);
+        head = nextHeader;
+    }
     /* Free request */
+    free(req);
 }
 
 /**
@@ -100,11 +112,21 @@ free_request(struct request *r)
  * headers, returning 0 on success, and -1 on error.
  **/
 int
-parse_request(struct request *r)
+parse_request(struct request *req)
 {
     /* Parse HTTP Request Method */
-
+    if (parse_request_method(req) < 0)
+    {
+        fprintf(stderr, "parse_request: Failed to parse request method");
+        return -1;
+    };
     /* Parse HTTP Requet Headers*/
+    if (parse_request_headers(req) < 0) 
+    {
+        fprintf(stderr, "parse_request: Failed to parse request headers");
+        return -1;
+    }
+    return 0;
 }
 
 /**
