@@ -25,25 +25,43 @@ int parse_request_headers(struct request *r);
  * The returned request struct must be deallocated using free_request.
  **/
 struct request *
-accept_request(int sfd)
+accept_request(int sockfd)
 {
-    struct request *r;
+    struct request *req;
     struct sockaddr raddr;
     socklen_t rlen;
+    size_t reqn = 1;
 
     /* Allocate request struct (zeroed) */
-
+    req = (struct request *) calloc(reqn, sizeof(struct request));
+    if (req == NULL) 
+    {
+        fprintf(stderr, "accept_request(): Memory allocation failed\n");
+        return NULL;
+    }
     /* Accept a client */
-
+    if ((req->fd = accept(sockfd, &raddr, &rlen)) < 0) 
+    {
+        fprintf(stderr, "Failed to accept request");
+        goto fail;
+    }
     /* Lookup client information */
-
+    if (getnameinfo(&raddr, sizeof(raddr), req->host, sizeof(req->host), req->port, sizeof(req->port), 0) != 0)
+    {
+        fprintf(stderr, "Host name and service cannot be retrieved");
+        goto fail;
+    }
     /* Open socket stream */
-
-    log("Accepted request from %s:%s", r->host, r->port);
-    return r;
+    if ((req->file = fdopen(req->fd, "r")) == NULL)
+    {
+        fprintf(stderr, "Cannot open client socket stream");
+        goto fail;
+    }
+    log("Accepted request from %s:%s", req->host, req->port);
+    return req;
 
 fail:
-    free_request(r);
+    free_request(req);
     return NULL;
 }
 
