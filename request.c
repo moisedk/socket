@@ -147,7 +147,8 @@ int
 parse_request_method(struct request *r)
 {
     /* Read line from socket */
-
+    char buff[64];
+    char *line = getline(&buff, sizeof(buff), r->file);
     /* Parse method and uri */
 
     /* Parse query from uri */
