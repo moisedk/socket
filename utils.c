@@ -122,6 +122,11 @@ skip_nonwhitespace(char *s)
 char *
 skip_whitespace(char *s)
 {
+    while (s[0] == ' ' || s[0] == '\t' || s[0] == '\n') 
+    {
+        s += 1;
+        if (s[0] == '\0') return s;
+    }
     return s;
 }
 
