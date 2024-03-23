@@ -147,12 +147,20 @@ int
 parse_request_method(struct request *r)
 {
     /* Read line from socket */
-    char buff[64];
-    char *line = getline(&buff, sizeof(buff), r->file);
+    char *buff = NULL;
+    size_t ln;
+    if (getline(&buff, &ln, r->file) < 0)
+    {
+        fprintf(stderr, "Failed to parse request method");
+        return -1;
+    }
+
     /* Parse method and uri */
-
+    char *method = skip_whitespace(buff); // Remove any whitespace before the method
+    method = strtok(method, WHITESPACE); // Breaks line into substrings separated by whitespaces
+    r->method = strdup(method);
     /* Parse query from uri */
-
+    
     /* Record method, uri, and query in request struct */
 
     debug("HTTP METHOD: %s", r->method);
