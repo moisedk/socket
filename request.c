@@ -156,12 +156,17 @@ parse_request_method(struct request *r)
     }
 
     /* Parse method and uri */
-    char *method = skip_whitespace(buff); // Remove any whitespace before the method
-    method = strtok(method, WHITESPACE); // Breaks line into substrings separated by whitespaces
-    r->method = strdup(method);
+    char *method_begin = skip_whitespace(buff); // Remove any whitespace before the method
+    char *method = strtok(method_begin, WHITESPACE); // Breaks line into substrings separated by whitespaces
+    char *uri_begin = skip_whitespace(skip_nonwhitespace(method_begin));
+    char *uri_and_query = strtok(uri_begin, WHITESPACE);
+    char *uri = strtok(uri_and_query, "?");
     /* Parse query from uri */
-    
+    char *query = strchr(uri_and_query, "?") + 1; // Return a pointer to the first byte after ?
     /* Record method, uri, and query in request struct */
+    r->method = strdup(method);
+    r->uri = strdup(uri);
+    r->query = strdup(query);
 
     debug("HTTP METHOD: %s", r->method);
     debug("HTTP URI:    %s", r->uri);
