@@ -33,14 +33,14 @@ accept_request(int sockfd)
     size_t reqn = 1;
 
     /* Allocate request struct (zeroed) */
-    req = (struct request *) calloc(reqn, sizeof(struct request));
-    if (req == NULL) 
+    req = (struct request *)calloc(reqn, sizeof(struct request));
+    if (req == NULL)
     {
         fprintf(stderr, "accept_request(): Memory allocation failed\n");
         return NULL;
     }
     /* Accept a client */
-    if ((req->fd = accept(sockfd, &raddr, &rlen)) < 0) 
+    if ((req->fd = accept(sockfd, &raddr, &rlen)) < 0)
     {
         fprintf(stderr, "Failed to accept request");
         goto fail;
@@ -75,13 +75,13 @@ fail:
  *  3. Frees all of the headers (including any allocated fields).
  *  4. Frees request struct.
  **/
-void
-free_request(struct request *req)
+void free_request(struct request *req)
 {
     struct header *header;
 
-    if (req == NULL) {
-    	return;
+    if (req == NULL)
+    {
+        return;
     }
 
     /* Close socket or fd */
@@ -111,8 +111,7 @@ free_request(struct request *req)
  * This function first parses the request method, any query, and then the
  * headers, returning 0 on success, and -1 on error.
  **/
-int
-parse_request(struct request *req)
+int parse_request(struct request *req)
 {
     /* Parse HTTP Request Method */
     if (parse_request_method(req) < 0)
@@ -121,7 +120,7 @@ parse_request(struct request *req)
         return -1;
     };
     /* Parse HTTP Requet Headers*/
-    if (parse_request_headers(req) < 0) 
+    if (parse_request_headers(req) < 0)
     {
         fprintf(stderr, "parse_request: Failed to parse request headers");
         return -1;
@@ -143,8 +142,7 @@ parse_request(struct request *req)
  *
  * This function extracts the method, uri, and query (if it exists).
  **/
-int
-parse_request_method(struct request *r)
+int parse_request_method(struct request *r)
 {
     /* Read line from socket */
     char *buff = NULL;
@@ -156,17 +154,58 @@ parse_request_method(struct request *r)
     }
 
     /* Parse method and uri */
-    char *method_begin = skip_whitespace(buff); // Remove any whitespace before the method
-    char *method = strtok(method_begin, WHITESPACE); // Breaks line into substrings separated by whitespaces
-    char *uri_begin = skip_whitespace(skip_nonwhitespace(method_begin));
-    char *uri_and_query = strtok(uri_begin, WHITESPACE);
-    char *uri = strtok(uri_and_query, "?");
-    /* Parse query from uri */
-    char *query = strchr(uri_and_query, "?") + 1; // Return a pointer to the first byte after ?
+    char *method_begin;
+    char *method;
+    char *whitespace_begin;
+    char *uri_begin;
+    char *uri_and_query;
+    char *uri;
+    char *query;
+
+    if ((method_begin = skip_whitespace(buff)) == NULL)
+    {
+        fprintf(stderr, "skip_whitespace: Failed to parse request method.\n");
+        goto fail;
+    }
+    if ((method = strtok(method_begin, WHITESPACE)) == NULL)
+    {
+        fprintf(stderr, "strtok: Failed to parse request method.\n");
+        goto fail;
+    }
+    if ((whitespace_begin = skip_nonwhitespace(method_begin)) == NULL)
+    {
+        fprintf(stderr, "skip_nonwhitespace: Failed to parse request uri.\n");
+        goto fail;
+    }
+    if ((uri_begin = skip_whitespace(whitespace_begin) == NULL))
+    {
+        fprintf(stderr, "skip_whitespace: Failed to parse request uri\n");
+        goto fail;
+    }
+    if ((uri_and_query = strtok(uri_begin, WHITESPACE)) == NULL)
+    {
+        fprintf(stderr, "strtok: Failed to parse uri and query\n");
+        goto fail;
+    }
+    if ((uri = strtok(uri_and_query, "?")) == NULL)
+    {
+        fprintf(stderr, "strtok: Failed to parse uri.\n");
+        goto fail;
+    }
+    if ((query = strchr(uri_and_query, "?") + 1) == NULL)
+    {
+        fprintf(stderr, "strch: Failed to parse querry.\n");
+        goto fail;
+    }
     /* Record method, uri, and query in request struct */
-    r->method = strdup(method);
-    r->uri = strdup(uri);
-    r->query = strdup(query);
+    if (
+        (r->method = strdup(method)) == NULL ||
+        (r->uri = strdup(uri)) == NULL ||
+        (r->query = strdup(query)) == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for request attributes\n");
+        goto fail;
+    }
 
     debug("HTTP METHOD: %s", r->method);
     debug("HTTP URI:    %s", r->uri);
@@ -202,19 +241,19 @@ fail:
  *      header      = new Header(name, value)
  *      headers.append(header)
  **/
-int
-parse_request_headers(struct request *r)
+int parse_request_headers(struct request *r)
 {
     struct header *curr = NULL;
     char buffer[BUFSIZ];
     char *name;
     char *value;
-    
+
     /* Parse headers from socket */
 
 #ifndef NDEBUG
-    for (struct header *header = r->headers; header != NULL; header = header->next) {
-    	debug("HTTP HEADER %s = %s", header->name, header->value);
+    for (struct header *header = r->headers; header != NULL; header = header->next)
+    {
+        debug("HTTP HEADER %s = %s", header->name, header->value);
     }
 #endif
     return 0;
